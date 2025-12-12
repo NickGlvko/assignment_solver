@@ -3,102 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Решатель задачи о назначениях (Венгерский алгоритм)</title>
+    <title>Решатель задачи о назначениях</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .error-message {
-            padding: 15px;
-            margin: 10px 0;
-            background-color: #fee;
-            border: 1px solid #fcc;
-            border-radius: 4px;
-            color: #c33;
-            display: none;
-            font-weight: bold;
-        }
-
-        .error-message.active {
-            display: block;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            border: 1px solid #ddd;
-        }
-
-        .data-table th, .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        .data-table th {
-            background-color: #2E86AB;
-            color: white;
-            font-weight: bold;
-        }
-
-        .data-table td input {
-            width: 60px;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            text-align: center;
-        }
-
-        .data-table .selected-cell {
-            background-color: #06A77D;
-            color: white;
-            font-weight: bold;
-        }
-
-        .assignment-item {
-            padding: 10px;
-            margin: 8px 0;
-            background-color: #f5f5f5;
-            border-left: 4px solid #2E86AB;
-            border-radius: 3px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🎯 Решатель задачи о назначениях</h1>
-            <p class="subtitle">Венгерский алгоритм O(n³)</p>
+            <p class="subtitle">Венгерский алгоритм vs Жадный метод</p>
         </header>
 
         <main>
-            <!-- Панель управления -->
+            <!-- Ввод данных -->
             <section class="control-panel">
                 <h2>📋 Ввод данных</h2>
 
                 <div class="form-group">
-                    <label for="size-input">Размер матрицы (n×n):</label>
+                    <label for="size-input">Размер матрицы:</label>
                     <input type="number" id="size-input" min="1" max="15" value="3" />
-                    <button id="generate-btn" class="btn btn-primary">🔄 Сгенерировать матрицу</button>
+                    <button id="generate-btn" class="btn btn-primary">🔄 Сгенерировать</button>
                 </div>
 
                 <div class="form-group">
-                    <label for="csv-upload">📁 Или загрузить CSV файл:</label>
+                    <label for="csv-upload">Загрузить CSV:</label>
                     <input type="file" id="csv-upload" accept=".csv" />
                 </div>
             </section>
 
-            <!-- Матрица для редактирования -->
+            <!-- Матрица -->
             <section class="matrix-section">
                 <h2>📊 Матрица стоимостей</h2>
-                <div id="matrix-container">
-                    <!-- Сюда будет добавлена таблица JavaScript -->
-                </div>
+                <div id="matrix-container"></div>
             </section>
 
-            <!-- Кнопка решения -->
+            <!-- Выбор метода и кнопка решения -->
             <section class="solver-section">
-                <h2>🔧 Решение</h2>
+                <h2>⚙️ Выбор метода</h2>
+
+                <div class="method-selector">
+                    <label class="radio-label">
+                        <input type="radio" name="method" value="hungarian" checked>
+                        <span class="radio-btn"></span>
+                        <strong>🇭🇺 Венгерский алгоритм</strong>
+                        <p class="method-desc">Оптимальное решение, O(n³)</p>
+                    </label>
+
+                    <label class="radio-label">
+                        <input type="radio" name="method" value="greedy">
+                        <span class="radio-btn"></span>
+                        <strong>⚡ Жадный метод</strong>
+                        <p class="method-desc">Быстрый, но может быть неоптимальным, O(n²log n)</p>
+                    </label>
+                </div>
+
                 <button id="solve-btn" class="btn btn-success">✨ Решить</button>
             </section>
 
@@ -107,35 +64,35 @@
                 <h2>📈 Результаты</h2>
 
                 <div class="result-info">
-                    <p><strong>💰 Итоговая стоимость:</strong> <span id="total-cost">-</span></p>
-                    <p><strong>⏱️ Время выполнения:</strong> <span id="exec-time">-</span> сек</p>
+                    <p><strong>🧮 Метод:</strong> <span id="algorithm-name">-</span></p>
+                    <p><strong>💰 Стоимость:</strong> <span id="total-cost">-</span></p>
+                    <p><strong>⏱️ Время:</strong> <span id="exec-time">-</span> сек</p>
+                </div>
+
+                <div class="comparison" id="comparison" style="display: none;">
+                    <h3>📊 Сравнение методов</h3>
+                    <div class="comparison-table">
+                        <div class="comp-row">
+                            <div class="comp-cell">Венгерский: <strong id="hung-cost">-</strong></div>
+                            <div class="comp-cell">Жадный: <strong id="greedy-cost">-</strong></div>
+                            <div class="comp-cell">Разница: <strong id="diff-cost">-</strong></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="assignments-display">
-                    <h3>✅ Оптимальные назначения</h3>
-                    <div id="assignments-list" class="assignments-list">
-                        <!-- Список назначений -->
-                    </div>
+                    <h3>✅ Назначения</h3>
+                    <div id="assignments-list"></div>
                 </div>
 
                 <div class="matrix-visualization">
-                    <h3>🎨 Визуализация на матрице</h3>
-                    <div id="result-matrix-container">
-                        <!-- Матрица с выделением -->
-                    </div>
+                    <h3>🎨 Визуализация</h3>
+                    <div id="result-matrix-container"></div>
                 </div>
             </section>
-
-            <footer>
-                <p>Assignment Problem Solver © 2025 | Венгерский алгоритм | <a href="https://github.com" target="_blank">GitHub</a></p>
-            </footer>
         </main>
     </div>
 
-    <!-- ОБЯЗАТЕЛЬНО: Подключаем JavaScript в конце body -->
     <script src="{{ url_for('static', filename='main.js') }}"></script>
-    <script>
-        console.log('✅ HTML загружен');
-    </script>
 </body>
 </html>
