@@ -76,3 +76,8 @@ coverage.xml
 
 # Windows
 Desktop.ini
+
+static/**/*.map
+static/**/*.min.js
+static/**/*.min.css
+

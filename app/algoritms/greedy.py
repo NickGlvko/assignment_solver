@@ -74,5 +74,3 @@ def solve_assignment(cost_matrix: list[list[int]]) -> dict:
         "total_cost": total_cost,
         "time_ms": elapsed_time_ms
     }
-
-print(solve_assignment([[4, 2, 8], [2, 4, 6], [8, 6, 4]]))
