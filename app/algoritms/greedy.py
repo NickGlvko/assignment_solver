@@ -141,3 +141,8 @@ if __name__ == "__main__":
     print(test_matrix_3)
     result = solve_assignment(test_matrix_3)
     print(f"Результат: {result}")
+    return {
+        "assignment": result_assignment,
+        "total_cost": total_cost,
+        "time_ms": elapsed_time_ms
+    }
